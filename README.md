@@ -7,7 +7,7 @@ Wireless networking for Intel Realsense Cameras connected to Raspberry Pi 4 (Mod
 - [ ] parsing realsense config files
 
 ## Hardware Requirements
-![](assets/hardware.jpg = 400x300)
+![](assets/hardware.jpg)
 
 - Intel Realsense camera (tested on D455)
 - Raspberry Pi 4 (Model B)
