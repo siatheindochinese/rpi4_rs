@@ -75,9 +75,9 @@ class EtherSenseServer(asyncore.dispatcher):
 	def update_frame(self):
 		color, depth = getRGBD(self.pipeline, self.decimate_filter)
 		if depth is not None and color is not None:
-			colordata = zlib.compress(color,3)
+			colordata = zlib.compress(color,1)
 			colorlen = struct.pack('<I', len(colordata))
-			depthdata = zlib.compress(depth,2)
+			depthdata = zlib.compress(depth,1)
 			depthlen = struct.pack('<I', len(depthdata))
 			self.frame_data = b''.join([colorlen, depthlen, colordata, depthdata])
 
