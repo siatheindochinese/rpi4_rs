@@ -3,7 +3,7 @@ import pyrealsense2.pyrealsense2 as rs
 import sys, getopt
 import asyncore
 import numpy as np
-import pickle
+import zlib
 import socket
 import struct
 import time
@@ -75,9 +75,9 @@ class EtherSenseServer(asyncore.dispatcher):
 	def update_frame(self):
 		color, depth = getRGBD(self.pipeline, self.decimate_filter)
 		if depth is not None and color is not None:
-			colordata = pickle.dumps(color)
+			colordata = zlib.compress(color,3)
 			colorlen = struct.pack('<I', len(colordata))
-			depthdata = pickle.dumps(depth)
+			depthdata = zlib.compress(depth,2)
 			depthlen = struct.pack('<I', len(depthdata))
 			self.frame_data = b''.join([colorlen, depthlen, colordata, depthdata])
 

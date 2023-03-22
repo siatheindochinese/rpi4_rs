@@ -3,7 +3,7 @@ import pyrealsense2 as rs
 import sys, getopt
 import asyncore
 import numpy as np
-import pickle
+import zlib
 import socket
 import struct
 import time
@@ -34,24 +34,6 @@ class ImageClient(asyncore.dispatcher):
         self.remainingColorBytes = 0
         self.remainingDepthBytes = 0
         self.time = 0
-       
-    '''
-    def handle_read(self):
-        if self.remainingBytes == 0:
-            # get the expected frame size
-            self.frame_length = struct.unpack('<I', self.recv(4))[0]
-            # get the timestamp of the current frame
-            self.timestamp = struct.unpack('<d', self.recv(8))
-            self.remainingBytes = self.frame_length
-        
-        # request the frame data until the frame is completely in buffer
-        data = self.recv(self.remainingBytes)
-        self.buffer += data
-        self.remainingBytes -= len(data)
-        # once the frame is fully recived, process/display it
-        if len(self.buffer) == self.frame_length:
-            self.handle_frame()
-    '''
             
     def handle_read(self):
         if self.remainingColorBytes == 0 and self.remainingDepthBytes == 0:
@@ -73,14 +55,13 @@ class ImageClient(asyncore.dispatcher):
         # once the frame is fully recived, process/display it
         if len(self.colorbuffer) == self.color_frame_length and len(self.depthbuffer) == self.depth_frame_length:
             self.handle_frame()
-            #print(round(1/(time.time() - self.time),2))
             print('time taken =', time.time() - self.time)
             self.time = time.time()
     
     def handle_frame(self):
         # convert the frame from string to numerical data
-        color = pickle.loads(self.colorbuffer)
-        depth = pickle.loads(self.depthbuffer)
+        color = np.fromstring(zlib.decompress(self.colorbuffer),np.dtype('uint8')).reshape(480,848,3)
+        depth = np.fromstring(zlib.decompress(self.depthbuffer),np.dtype('uint16')).reshape(480,848)
         depth = cv2.applyColorMap(cv2.convertScaleAbs(depth, alpha=0.03), cv2.COLORMAP_JET)
         colorndepth = np.hstack((color, depth))
         cv2.imshow("window"+str(self.windowName), colorndepth)
