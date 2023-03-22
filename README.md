@@ -7,6 +7,8 @@ Wireless networking for Intel Realsense Cameras connected to Raspberry Pi 4 (Mod
 - [ ] parsing realsense config files
 
 ## Hardware Requirements
+![](assets/hardware.jpg = 400x300)
+
 - Intel Realsense camera (tested on D455)
 - Raspberry Pi 4 (Model B)
 - Wireless Router (tested on a TP-Link Archer C80)
@@ -47,6 +49,8 @@ Connect your Pi 4 unit to your wireless router, ensuring it uses a static ip add
 In `client.py` and `server.py`, change the `mc_ip_address` variable to the static ip assigned to your Pi 4 unit.
 
 ## Running the Client and Server
+![](assets/client.png)
+
 1. On your Pi 4, run the `Server.py` script.
 2. On your client device, run the `Client.py` script.
 
