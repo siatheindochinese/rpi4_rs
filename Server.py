@@ -6,6 +6,7 @@ import numpy as np
 import pickle
 import socket
 import struct
+import time
 
 
 print('Number of arguments:', len(sys.argv), 'arguments.')
@@ -62,7 +63,8 @@ class EtherSenseServer(asyncore.dispatcher):
 		self.decimate_filter.set_option(rs.option.filter_magnitude, 2)
 		self.frame_data = ''
 		self.connect((address[0], 1024))
-		self.packet_id = 0        
+		self.packet_id = 0
+		self.time = 0
 
 	def handle_connect(self):
 		print("connection received")
@@ -85,7 +87,9 @@ class EtherSenseServer(asyncore.dispatcher):
 			self.update_frame()
 		# the frame has been sent in it entirety so get the latest frame
 		if len(self.frame_data) == 0:
+			print('time taken =', time.time() - self.time)
 			self.update_frame()
+			self.time = time.time()
 		else:
 			# send the remainder of the frame_data until there is no data remaining for transmition
 			remaining_size = self.send(self.frame_data)

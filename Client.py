@@ -6,6 +6,7 @@ import numpy as np
 import pickle
 import socket
 import struct
+import time
 import cv2
 
 
@@ -32,6 +33,7 @@ class ImageClient(asyncore.dispatcher):
         cv2.namedWindow("window"+str(self.windowName))
         self.remainingColorBytes = 0
         self.remainingDepthBytes = 0
+        self.time = 0
        
     '''
     def handle_read(self):
@@ -53,6 +55,7 @@ class ImageClient(asyncore.dispatcher):
             
     def handle_read(self):
         if self.remainingColorBytes == 0 and self.remainingDepthBytes == 0:
+            self.time = time.time()
             # get the expected frame size
             self.color_frame_length = struct.unpack('<I', self.recv(4))[0]
             self.depth_frame_length = struct.unpack('<I', self.recv(4))[0]
@@ -70,6 +73,9 @@ class ImageClient(asyncore.dispatcher):
         # once the frame is fully recived, process/display it
         if len(self.colorbuffer) == self.color_frame_length and len(self.depthbuffer) == self.depth_frame_length:
             self.handle_frame()
+            #print(round(1/(time.time() - self.time),2))
+            print('time taken =', time.time() - self.time)
+            self.time = time.time()
     
     def handle_frame(self):
         # convert the frame from string to numerical data
