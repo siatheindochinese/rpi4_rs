@@ -51,10 +51,15 @@ In `client.py` and `server.py`, change the `mc_ip_address` variable to the stati
 ## Running the Client and Server
 ![](assets/client.png)
 
+#### 1. Streaming RGB and Depth
 1. On your Pi 4, run the `Server.py` script.
 2. On your client device, run the `Client.py` script.
 
 Run the script in the exact sequence outlined above.
+
+#### 2. Streaming RGB only
+1. On your Pi 4, run the `ServerRGB.py` script.
+2. On your client device, run the `ClientRGB.py` script.
 
 ## Acknowledgement
 The client-server scripts are adapted from [EtherSense](https://github.com/krejov100/EtherSense) and the librealsense SDK installation script is adapted from [librealsense](https://github.com/IntelRealSense/librealsense/blob/master/doc/libuvc_installation.md). Thanks to [krehov100](https://github.com/krejov100) for the open-source ethernet networking for Intel Realsense cameras.
