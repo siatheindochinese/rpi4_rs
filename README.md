@@ -3,7 +3,7 @@ Wireless networking for Intel Realsense Cameras connected to Raspberry Pi 4 (Mod
 
 ## TODO List
 - [ ] frames-per-second optimization
-- [ ] include instrinsic data with frames
+- [x] include instrinsic data with frames
 - [ ] parsing realsense config files
 
 ## Hardware Requirements
