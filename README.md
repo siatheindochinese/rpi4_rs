@@ -2,7 +2,7 @@
 Wireless networking for Intel Realsense Cameras connected to Raspberry Pi 4 (Model B) units.
 
 ## TODO List
-- [ ] frames-per-second optimization
+- [x] frames-per-second optimization (replaced pickle with zlib)
 - [x] include instrinsic data with frames
 - [ ] parsing realsense config files
 
