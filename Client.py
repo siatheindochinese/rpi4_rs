@@ -39,6 +39,7 @@ class ImageClient(asyncore.dispatcher):
         if self.remainingColorBytes == 0 and self.remainingDepthBytes == 0:
             self.time = time.time()
             # get the expected frame size
+            self.intrin = np.fromstring(zlib.decompress(self.recv(62)),np.dtype('float64'))
             self.color_frame_length = struct.unpack('<I', self.recv(4))[0]
             self.depth_frame_length = struct.unpack('<I', self.recv(4))[0]
             self.remainingColorBytes = self.color_frame_length
@@ -56,6 +57,7 @@ class ImageClient(asyncore.dispatcher):
         if len(self.colorbuffer) == self.color_frame_length and len(self.depthbuffer) == self.depth_frame_length:
             self.handle_frame()
             print('time taken =', time.time() - self.time)
+            print('intrinsics =', self.intrin)
             self.time = time.time()
     
     def handle_frame(self):

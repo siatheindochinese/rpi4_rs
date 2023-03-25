@@ -29,15 +29,16 @@ class ImageClient(asyncore.dispatcher):
         self.colorbuffer = bytearray()
         self.windowName = self.port
         # open cv window which is unique to the port 
-        cv2.namedWindow("window"+str(self.windowName))
+        cv2.namedWindow("window"+str(self.windowName), cv2.WINDOW_NORMAL)
         self.remainingColorBytes = 0
         self.time = 0
-            
+    
     def handle_read(self):
         if self.remainingColorBytes == 0:
             self.time = time.time()
             # get the expected frame size
             self.color_frame_length = struct.unpack('<I', self.recv(4))[0]
+            self.intrin = np.fromstring(zlib.decompress(self.recv(61)),np.dtype('float64'))
             self.remainingColorBytes = self.color_frame_length
         # request the frame data until the frame is completely in buffer
         colordata = self.recv(self.remainingColorBytes)
@@ -47,6 +48,7 @@ class ImageClient(asyncore.dispatcher):
         if len(self.colorbuffer) == self.color_frame_length:
             self.handle_frame()
             print('time taken =', time.time() - self.time)
+            print('intrinsics =', self.intrin)
             self.time = time.time()
     
     def handle_frame(self):

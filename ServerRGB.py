@@ -16,21 +16,22 @@ port = 1024
 chunk_size = 4096
 #rs.log_to_console(rs.log_severity.debug)
 
-def getRGB(pipeline):
+def getRGB(pipeline, profile):
 	frames = pipeline.wait_for_frames()
+	intrin = profile.get_stream(rs.stream.color).as_video_stream_profile().get_intrinsics()
 	color_frame = frames.get_color_frame()
 	if not color_frame:
 		return None
 	color_image = np.asanyarray(color_frame.get_data())
-	return color_image
+	return color_image, intrin
     
 def openPipeline():
 	cfg = rs.config()
 	cfg.enable_stream(rs.stream.color, 848, 480, rs.format.bgr8, 30)
 	pipeline = rs.pipeline()
-	pipeline_profile = pipeline.start(cfg)
-	sensor = pipeline_profile.get_device().first_depth_sensor()
-	return pipeline
+	profile = pipeline.start(cfg)
+	sensor = profile.get_device().first_depth_sensor()
+	return pipeline, profile
 
 class DevNullHandler(asyncore.dispatcher_with_send):
 	def handle_read(self):
@@ -45,7 +46,7 @@ class EtherSenseServer(asyncore.dispatcher):
 		asyncore.dispatcher.__init__(self)
 		print("Launching Realsense Camera Server")
 		try:
-			self.pipeline = openPipeline()
+			self.pipeline, self.profile = openPipeline()
 		except:
 			print("Unexpected error: ", sys.exc_info()[1])
 			sys.exit(1)
@@ -64,11 +65,15 @@ class EtherSenseServer(asyncore.dispatcher):
 		return True
 
 	def update_frame(self):
-		color= getRGB(self.pipeline)
-		if color is not None:
+		color, intrin = getRGB(self.pipeline, self.profile)
+		if color is not None and intrin is not None:
+			dist_coeffs = np.array(intrin.coeffs)
+			K = np.array([intrin.fx, intrin.fy, intrin.ppx, intrin.ppy])
+			intrin = np.concatenate((K, dist_coeffs))
+			intrindata = zlib.compress(intrin,1)
 			colordata = zlib.compress(color,1)
 			colorlen = struct.pack('<I', len(colordata))
-			self.frame_data = b''.join([colorlen, colordata])
+			self.frame_data = b''.join([colorlen, intrindata, colordata])
 
 	def handle_write(self):
 		# first time the handle_write is called
